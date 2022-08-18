@@ -118,14 +118,14 @@ MTLPixelFormat mtlPixelFormatForGLFormatType(GLenum gl_format, GLenum gl_type)
             return MTLPixelFormatInvalid;
 
         case GL_UNSIGNED_SHORT_5_6_5:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatB5G6R5Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_UNSIGNED_SHORT_5_6_5_REV:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatA1BGR5Unorm;
             } else {
                 return MTLPixelFormatInvalid;
@@ -182,14 +182,14 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatRGBA16Unorm;    // working format
 
         case GL_COMPRESSED_RGB:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatETC2_RGB8;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_RGBA:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_RGBA8;
             } else {
                 return MTLPixelFormatInvalid;
@@ -217,7 +217,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatRGBA8Unorm_sRGB;
 
         case GL_COMPRESSED_SRGB:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatETC2_RGB8_sRGB;
             } else {
                 return MTLPixelFormatInvalid;
@@ -227,14 +227,14 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatInvalid;
 
         case GL_COMPRESSED_RED:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_R11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_RG:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_RG11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
@@ -322,14 +322,14 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatInvalid;
 
         case GL_COMPRESSED_RG_RGTC2:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_R11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SIGNED_RG_RGTC2:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_R11Snorm;
             } else {
                 return MTLPixelFormatInvalid;
@@ -438,70 +438,70 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatBC6H_RGBUfloat;
 
         case GL_COMPRESSED_RGB8_ETC2:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatETC2_RGB8;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SRGB8_ETC2:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatETC2_RGB8_sRGB;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatETC2_RGB8A1;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatETC2_RGB8A1_sRGB;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_RGBA8_ETC2_EAC:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_RGBA8;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_RGBA8_sRGB;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_R11_EAC:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_R11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SIGNED_R11_EAC:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_R11Snorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_RG11_EAC:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_RG11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SIGNED_RG11_EAC:
-            if (@available(macOS 11.0, iOS 14.0, *)) {
+            if (@available(macOS 11.0, *)) {
                 return MTLPixelFormatEAC_RG11Snorm;
             } else {
                 return MTLPixelFormatInvalid;
