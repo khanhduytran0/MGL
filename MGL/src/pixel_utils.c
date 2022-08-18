@@ -19,6 +19,7 @@
  */
  
 #include <Availability.h>
+#include <TargetConditionals.h>
 
 #include "pixel_utils.h"
 #include "glm_context.h"
@@ -1652,7 +1653,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatRGBA16Unorm;    // working format
 
         case GL_COMPRESSED_RGB:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatETC2_RGB8;
             } else {
                 // Fallback on earlier versions
@@ -1660,7 +1661,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_RGBA:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_RGBA8;
             } else {
                 // Fallback on earlier versions
@@ -1689,7 +1690,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatRGBA8Unorm_sRGB;
 
         case GL_COMPRESSED_SRGB:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatETC2_RGB8_sRGB;
             } else {
                 return MTLPixelFormatInvalid;
@@ -1699,14 +1700,14 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatInvalid;
 
         case GL_COMPRESSED_RED:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_R11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_RG:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_RG11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
@@ -1772,8 +1773,10 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
         case GL_DEPTH32F_STENCIL8:
             return MTLPixelFormatDepth32Float_Stencil8;
 
+#ifndef TARGET_OS_IPHONE
         case GL_DEPTH24_STENCIL8:
             return MTLPixelFormatX24_Stencil8;
+#endif
 
         case GL_STENCIL_INDEX1:
             return MTLPixelFormatInvalid;
@@ -1794,14 +1797,14 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatInvalid;
 
         case GL_COMPRESSED_RG_RGTC2:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_R11Unorm;
             } else {
                 return MTLPixelFormatInvalid;
             }
 
         case GL_COMPRESSED_SIGNED_RG_RGTC2:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_R11Snorm;
             } else {
                 // Fallback on earlier versions
@@ -1911,7 +1914,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             return MTLPixelFormatBC6H_RGBUfloat;
 
         case GL_COMPRESSED_RGB8_ETC2:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatETC2_RGB8;
             } else {
                 // Fallback on earlier versions
@@ -1919,7 +1922,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_SRGB8_ETC2:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatETC2_RGB8_sRGB;
             } else {
                 // Fallback on earlier versions
@@ -1927,7 +1930,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatETC2_RGB8A1;
             } else {
                 // Fallback on earlier versions
@@ -1935,7 +1938,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatETC2_RGB8A1_sRGB;
             } else {
                 // Fallback on earlier versions
@@ -1943,7 +1946,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_RGBA8_ETC2_EAC:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_RGBA8;
             } else {
                 // Fallback on earlier versions
@@ -1951,7 +1954,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_RGBA8_sRGB;
             } else {
                 // Fallback on earlier versions
@@ -1959,7 +1962,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_R11_EAC:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_R11Unorm;
             } else {
                 // Fallback on earlier versions
@@ -1967,7 +1970,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_SIGNED_R11_EAC:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_R11Snorm;
             } else {
                 // Fallback on earlier versions
@@ -1975,7 +1978,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_RG11_EAC:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_RG11Unorm;
             } else {
                 // Fallback on earlier versions
@@ -1983,7 +1986,7 @@ MTLPixelFormat mtlFormatForGLInternalFormat(GLenum internal_format)
             }
 
         case GL_COMPRESSED_SIGNED_RG11_EAC:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatEAC_RG11Snorm;
             } else {
                 // Fallback on earlier versions
@@ -2075,7 +2078,9 @@ MTLPixelFormat mtlPixelFormatForGLFormatType(GLenum gl_format, GLenum gl_type)
                 case GL_RG: return MTLPixelFormatRG32Float;
                 case GL_RGBA: return MTLPixelFormatRGBA32Float;
                 case GL_DEPTH_COMPONENT: return MTLPixelFormatDepth32Float;
+#ifndef TARGET_OS_IPHONE
                 case GL_DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
+#endif
 
                 default:
                     return 0;
@@ -2089,7 +2094,7 @@ MTLPixelFormat mtlPixelFormatForGLFormatType(GLenum gl_format, GLenum gl_type)
             return 0;
 
         case GL_UNSIGNED_SHORT_5_6_5:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatB5G6R5Unorm;
             } else {
                 // Fallback on earlier versions
@@ -2097,7 +2102,7 @@ MTLPixelFormat mtlPixelFormatForGLFormatType(GLenum gl_format, GLenum gl_type)
             }
 
         case GL_UNSIGNED_SHORT_5_6_5_REV:
-            if (__builtin_available(macOS 11.0, *)) {
+            if (__builtin_available(macOS 11.0, iOS 14.0, *)) {
                 return MTLPixelFormatA1BGR5Unorm;
             } else {
                 // Fallback on earlier versions

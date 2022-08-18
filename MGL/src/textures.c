@@ -18,7 +18,12 @@
  *
  */
 
+#include <TargetConditionals.h>
+#ifndef TARGET_OS_IPHONE
 #include <mach/mach_vm.h>
+#else
+#include "ios_mach_vm.h"
+#endif
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
 
@@ -977,7 +982,9 @@ bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, 
     {
         case MTLPixelFormatDepth16Unorm:
         case MTLPixelFormatDepth32Float:
+#ifndef TARGET_OS_IPHONE
         case MTLPixelFormatDepth24Unorm_Stencil8:
+#endif
         case MTLPixelFormatDepth32Float_Stencil8:
             tex->mtl_requires_private_storage = true;
             break;

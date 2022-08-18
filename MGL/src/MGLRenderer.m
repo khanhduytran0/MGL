@@ -24,7 +24,15 @@
 #import <simd/simd.h>
 #import <MetalKit/MetalKit.h>
 
+#include <TargetConditionals.h>
+#ifndef TARGET_OS_IPHONE
 #include <mach/mach_vm.h>
+#else
+#include "ios_mach_vm.h"
+#define NSRect CGRect
+#define NSSize CGSize
+#define NSView UIView
+#endif
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
 
@@ -305,7 +313,11 @@ void logDirtyBits(GLMContext ctx)
 
     if (ptr->storage_flags & GL_CLIENT_STORAGE_BIT)
     {
+#ifndef TARGET_OS_IPHONE
         options = MTLResourceCPUCacheModeDefaultCache | MTLResourceStorageModeManaged;
+#else // FIXME: how?
+        options = MTLResourceCPUCacheModeDefaultCache; // | MTLResourceStorageModeManaged;
+#endif
 
         // ways we will only write to this
         if ((ptr->storage_flags & GL_MAP_READ_BIT) == 0)
@@ -330,7 +342,11 @@ void logDirtyBits(GLMContext ctx)
     else
     {
         // need to figure this out for non-client storage
+#ifndef TARGET_OS_IPHONE
         options = MTLResourceCPUCacheModeDefaultCache | MTLResourceStorageModeManaged;
+#else // FIXME: how?
+        options = MTLResourceCPUCacheModeDefaultCache; // | MTLResourceStorageModeManaged;
+#endif
 
         // we will only write to this
         if ((ptr->storage_flags & GL_MAP_READ_BIT) == 0)
@@ -351,7 +367,9 @@ void logDirtyBits(GLMContext ctx)
             data = buffer.contents;
             memcpy(data, (void *)ptr->data.buffer_data, ptr->data.buffer_size);
 
+#ifndef TARGET_OS_IPHONE
             [buffer didModifyRange:NSMakeRange(0, ptr->data.buffer_size)];
+#endif
 
             kern_return_t err;
             err = vm_deallocate((vm_map_t) mach_task_self(),
@@ -564,13 +582,17 @@ void logDirtyBits(GLMContext ctx)
         // contents in check for EVERY drawing operation
         if (ptr->access & GL_MAP_COHERENT_BIT)
         {
+#ifndef TARGET_OS_IPHONE
             [buffer didModifyRange: NSMakeRange(ptr->mapped_offset, ptr->mapped_length)];
+#endif
 
             ptr->data.dirty_bits = DIRTY_BUFFER_DATA;
         }
         else
         {
+#ifndef TARGET_OS_IPHONE
             [buffer didModifyRange: NSMakeRange(0, ptr->data.buffer_size)];
+#endif
 
             ptr->data.dirty_bits = 0;
         }
@@ -3072,7 +3094,9 @@ void mtlClearBuffer (GLMContext glm_ctx, GLuint type, GLbitfield mask)
     data = mtl_buffer.contents;
     memcpy(data+offset, ptr, size);
 
+#ifndef TARGET_OS_IPHONE
     [mtl_buffer didModifyRange:NSMakeRange(offset, size)];
+#endif
 }
 
 void mtlBufferSubData(GLMContext glm_ctx, Buffer *buf, size_t offset, size_t size, const void *ptr)
@@ -3098,7 +3122,9 @@ void mtlBufferSubData(GLMContext glm_ctx, Buffer *buf, size_t offset, size_t siz
         return mtl_buffer.contents + offset;
     }
 
+#ifndef TARGET_OS_IPHONE
     [mtl_buffer didModifyRange:NSMakeRange(offset, size)];
+#endif
 
     return NULL;
 }
@@ -3116,7 +3142,9 @@ void *mtlMapUnmapBuffer(GLMContext glm_ctx, Buffer *buf, size_t offset, size_t s
 
     mtl_buffer = (__bridge id<MTLBuffer>)(buf->data.mtl_data);
 
+#ifndef TARGET_OS_IPHONE
     [mtl_buffer didModifyRange:NSMakeRange(offset, length)];
+#endif
 }
 
 void mtlFlushBufferRange(GLMContext glm_ctx, Buffer *buf, GLintptr offset, GLsizeiptr length)
@@ -4047,6 +4075,7 @@ void mtlMultiDrawElementsIndirect(GLMContext glm_ctx, GLenum mode, GLenum type, 
 }
 
 //MGLRenderer *renderer
+#ifndef TARGET_OS_IPHONE
 void*
 CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
 {
@@ -4065,6 +4094,7 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
     [renderer createMGLRendererAndBindToContext: glm_ctx view: view];
     return  (__bridge void *)(renderer);
 }
+#endif
 
 - (void) createMGLRendererAndBindToContext: (GLMContext) glm_ctx view: (NSView *) view
 {
@@ -4081,7 +4111,11 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
 
     _view = view;
 
+#ifndef TARGET_OS_IPHONE
     _layer = [[CAMetalLayer alloc] init];
+#else
+    _layer = [_view layer];
+#endif
     assert(_layer);
 
     _layer.device = _device;
@@ -4091,14 +4125,16 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
     _layer.magnificationFilter = kCAFilterNearest;
 
     // from https://github.com/bkaradzic/bgfx/issues/2009#issuecomment-581390564
+#ifndef TARGET_OS_IPHONE
     int scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
+#else
+    // for iOS, it'll be:
+    int scaleFactor = [[UIScreen mainScreen] scale];
+#endif
     [_layer setContentsScale: scaleFactor];
 
-    // for iOS, it'll be:
-    // scaleFactor = [[UIScreen mainScreen] scale];
-    // [m_metalLayer setContentScaleFactor: scaleFactor];
-
     //assert([_view layer]);
+#ifndef TARGET_OS_IPHONE
     if ([_view layer])
     {
         [[_view layer] addSublayer: _layer];
@@ -4107,6 +4143,7 @@ CppCreateMGLRendererAndBindToContext (void *window, void *glm_ctx)
     {
         [_view setLayer: _layer];
     }
+#endif
 
     mglDrawBuffer(glm_ctx, GL_FRONT);
 

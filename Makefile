@@ -6,7 +6,7 @@
 
 # Find SDK path via xcode-select, backwards compatible with Xcode vers < 4.5
 # on M1 monterey, comment out the following line
-SDK_ROOT = $(shell xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
+SDK_ROOT ?= $(shell xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
 
 # with installed spirv_headers and spirv_cross
 # spirv_headers_include_path ?= /usr/local/include
@@ -79,12 +79,16 @@ CFLAGS += -Wall #-Wunused-parameter #-Wextra
 CFLAGS += -gfull -O0 -fsanitize=address
 #CFLAGS += -03
 LIBS += -fsanitize=address
-CFLAGS += -arch $(shell uname -m)
+#CFLAGS += -arch $(shell uname -m)
+CFLAGS += -arch arm64
+CFLAGS += -miphoneos-version-min=14.0
+CFLAGS += -Iexternal/MetalANGLE.framework/Headers
 CFLAGS += -I$(spirv_cross_1_2_include_path)
 CFLAGS += -I$(spirv_cross_config_include_path)
 #CFLAGS += -I$(brew_prefix)/opt/glslang/include/glslang/Include
 CFLAGS += $(addprefix -I,$(glslang_include_path))
-CFLAGS += $(shell pkg-config --cflags SPIRV-Tools)
+#CFLAGS += $(shell pkg-config --cflags SPIRV-Tools)
+CFLAGS += -Iexternal/SPIRV-Tools/include
 CFLAGS += $(shell pkg-config --cflags glm)
 CFLAGS += -IMGL/include
 CFLAGS += -IMGL/include/GL # "glcorearb.h"
@@ -92,12 +96,16 @@ CFLAGS += -IMGL/SPIRV/SPIRV-Cross
 CFLAGS += -DENABLE_OPT=0 -DSPIRV_CROSS_C_API_MSL=1 -DSPIRV_CROSS_C_API_GLSL=1 -DSPIRV_CROSS_C_API_CPP=1 -DSPIRV_CROSS_C_API_REFLECT=1
 ifneq ($(SDK_ROOT),)
 CFLAGS += -isysroot $(SDK_ROOT)
+LIBS += -isysroot $(SDK_ROOT)
 endif
 
+LIBS += -arch arm64
+LIBS += -miphoneos-version-min=14.0
 LIBS += -L$(spirv_cross_lib_path) -lspirv-cross-core -lspirv-cross-c -lspirv-cross-cpp -lspirv-cross-msl -lspirv-cross-glsl -lspirv-cross-hlsl -lspirv-cross-reflect
 #LIBS += -L$(brew_prefix)/opt/glslang/lib
 LIBS += $(addprefix -L,$(glslang_lib_path))
 LIBS += -lglslang -lMachineIndependent -lGenericCodeGen -lOGLCompiler -lOSDependent -lglslang-default-resource-limits -lSPIRV
+LIBS += -Fexternal -framework MetalANGLE
 #LIBS += -framework OpenGL -framework CoreGraphics
 
 # specific rules

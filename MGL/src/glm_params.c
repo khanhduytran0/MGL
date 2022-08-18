@@ -306,10 +306,17 @@ GLMParams default_glm_params = {
 
 #include <unistd.h>
 #include <dlfcn.h>
+#include <TargetConditionals.h>
+#ifndef TARGET_OS_IPHONE
 #include <OpenGL/OpenGL.h>
+#else
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
+#endif
 
 void getMacOSDefaults(GLMContext glm_ctx)
 {
+#ifndef TARGET_OS_IPHONE
     void *OpenGL, *libGL;
     const char *OpenGLPath = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
     const char *libGLPath = "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
@@ -352,6 +359,19 @@ void getMacOSDefaults(GLMContext glm_ctx)
     CGLDestroyPixelFormat( pix );
 
     errorCode = CGLSetCurrentContext( ctx ); assert(errorCode == kCGLNoError);
+#else
+    const EGLint ctx_attribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
+    EGLConfig config;
+    EGLint num_config;
+    EGLContext context;
+    EGLDisplay display;
+    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    eglInitialize(display, NULL, NULL);
+    eglChooseConfig(display, NULL, &config, 1, &num_config);
+    eglBindAPI(EGL_OPENGL_API);
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, ctx_attribs);
+    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context);
+#endif
 
     glGetFloatv(GL_POINT_SIZE,&glm_ctx->state.var.point_size);
     glGetIntegerv(GL_POINT_SIZE_RANGE,&glm_ctx->state.var.point_size_range);
@@ -580,9 +600,16 @@ void getMacOSDefaults(GLMContext glm_ctx)
     glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP,&glm_ctx->state.var.texture_binding_cube_map);
     glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE,&glm_ctx->state.var.texture_binding_rectangle);
 
+#ifndef TARGET_OS_IPHONE
     CGLSetCurrentContext( NULL );
     CGLDestroyContext( ctx );
 
     dlclose(OpenGL);
     dlclose(libGL);
+#else
+    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroyContext(display, context);
+    eglTerminate(display);
+    eglReleaseThread();
+#endif
 }
