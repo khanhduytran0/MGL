@@ -258,6 +258,12 @@ void mglShaderSource(GLMContext ctx, GLuint shader, GLsizei count, const GLchar 
         ERROR_CHECK_RETURN(len, GL_INVALID_VALUE);
     }
 
+    if (!strncmp(src, "#version", 8) && src[9] == '1' && src[10] == '5')
+    {
+        // Change 150 to 330
+        src[9] = src[10] = '3';
+    }
+
     ptr->src_len = len;
     ptr->src = src;
     ptr->dirty_bits |= DIRTY_SHADER;
@@ -292,7 +298,7 @@ void mglCompileShader(GLMContext ctx, GLuint shader)
         ptr->log = NULL;
     }
 
-    glslang_shader_set_options(glsl_shader, GLSLANG_SHADER_VULKAN_RULES_RELAXED);
+    glslang_shader_set_options(glsl_shader, GLSLANG_SHADER_AUTO_MAP_BINDINGS | GLSLANG_SHADER_AUTO_MAP_LOCATIONS | GLSLANG_SHADER_VULKAN_RULES_RELAXED);
 
     err = glslang_shader_preprocess(glsl_shader, &glsl_input);
     if (!err)

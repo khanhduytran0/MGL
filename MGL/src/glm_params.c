@@ -324,11 +324,27 @@ void getMacOSDefaults(GLMContext glm_ctx)
     CGLError (*CGLDestroyPixelFormat)(CGLPixelFormatObj pix);
     CGLError (*CGLCreateContext)(CGLPixelFormatObj pix, CGLContextObj OPENGL_NULLABLE share, CGLContextObj OPENGL_NULLABLE * OPENGL_NONNULL ctx);
     CGLError (*CGLDestroyContext)(CGLContextObj ctx);
+#else
+    void *OpenGL;
+    const char *OpenGLPath = "@rpath/MetalANGLE.framework/MetalANGLE";
+    EGLBoolean (*eglBindAPI) (EGLenum api);
+    EGLBoolean (*eglChooseConfig) (EGLDisplay dpy, const EGLint *attrib_list, EGLConfig *configs, EGLint config_size, EGLint *num_config);
+    EGLContext (*eglCreateContext) (EGLDisplay dpy, EGLConfig config, EGLContext share_list, const EGLint *attrib_list);
+    EGLBoolean (*eglDestroyContext) (EGLDisplay dpy, EGLContext ctx);
+    EGLBoolean (*eglReleaseThread) (void);
+    EGLDisplay (*eglGetPlatformDisplay) (EGLenum platform, void *native_display, const EGLint *attrib_list);
+    EGLBoolean (*eglInitialize) (EGLDisplay dpy, EGLint *major, EGLint *minor);
+    EGLBoolean (*eglMakeCurrent) (EGLDisplay dpy, EGLSurface draw, EGLSurface read, EGLContext ctx);
+    EGLBoolean (*eglTerminate) (EGLDisplay dpy);
+#endif
     void (*glGetIntegerv)(GLenum param, GLuint *params);
+#ifndef TARGET_OS_IPHONE
     void (*glGetDoublev)(GLenum param, GLdouble *params);
+#endif
     void (*glGetFloatv)(GLenum param, GLfloat *params);
     void (*glGetBooleanv)(GLenum param, GLboolean *params);
 
+#ifndef TARGET_OS_IPHONE
     CGLContextObj ctx;
 
     CGLPixelFormatAttribute attributes[4] = {
@@ -360,12 +376,31 @@ void getMacOSDefaults(GLMContext glm_ctx)
 
     errorCode = CGLSetCurrentContext( ctx ); assert(errorCode == kCGLNoError);
 #else
+    OpenGL = dlopen(OpenGLPath, RTLD_LAZY | RTLD_LOCAL);
+    if (!OpenGL) {
+        printf("%s\n", dlerror());
+    }
+    assert(OpenGL);
+
+    eglBindAPI = dlsym(OpenGL,"eglBindAPI"); assert(eglBindAPI);
+    eglChooseConfig = dlsym(OpenGL, "eglChooseConfig"); assert(eglChooseConfig);
+    eglCreateContext = dlsym(OpenGL, "eglCreateContext"); assert(eglCreateContext);
+    eglDestroyContext = dlsym(OpenGL, "eglDestroyContext"); assert(eglDestroyContext);
+    eglGetPlatformDisplay = dlsym(OpenGL, "eglGetPlatformDisplay"); assert(eglGetPlatformDisplay);
+    eglInitialize = dlsym(OpenGL, "eglInitialize"); assert(eglInitialize);
+    eglMakeCurrent = dlsym(OpenGL, "eglMakeCurrent"); assert(eglMakeCurrent);
+    eglReleaseThread = dlsym(OpenGL, "eglReleaseThread"); assert(eglReleaseThread);
+    eglTerminate = dlsym(OpenGL, "eglTerminate"); assert(eglTerminate);
+    glGetIntegerv = dlsym(OpenGL, "glGetIntegerv"); assert(glGetIntegerv);
+    glGetFloatv = dlsym(OpenGL, "glGetFloatv"); assert(glGetFloatv);
+    glGetBooleanv = dlsym(OpenGL, "glGetBooleanv"); assert(glGetBooleanv);
+
     const EGLint ctx_attribs[] = {EGL_CONTEXT_CLIENT_VERSION, 3, EGL_NONE};
     EGLConfig config;
     EGLint num_config;
     EGLContext context;
     EGLDisplay display;
-    display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    display = eglGetPlatformDisplay(/* EGL_PLATFORM_ANGLE_ANGLE */ 0x3202, (void *)EGL_DEFAULT_DISPLAY, NULL);
     eglInitialize(display, NULL, NULL);
     eglChooseConfig(display, NULL, &config, 1, &num_config);
     eglBindAPI(EGL_OPENGL_API);
@@ -382,11 +417,19 @@ void getMacOSDefaults(GLMContext glm_ctx)
     glGetIntegerv(GL_POLYGON_MODE,&glm_ctx->state.var.polygon_mode);
     glGetIntegerv(GL_CULL_FACE_MODE,&glm_ctx->state.var.cull_face_mode);
     glGetIntegerv(GL_FRONT_FACE,&glm_ctx->state.var.front_face);
+#ifndef TARGET_OS_IPHONE
     glGetDoublev(GL_DEPTH_RANGE,glm_ctx->state.var.depth_range);
+#else
+    glGetFloatv(GL_DEPTH_RANGE,glm_ctx->state.var.depth_range);
+#endif
 
     glGetBooleanv(GL_DEPTH_WRITEMASK,&glm_ctx->state.var.depth_writemask);
 
+#ifndef TARGET_OS_IPHONE
     glGetDoublev(GL_DEPTH_CLEAR_VALUE,&glm_ctx->state.var.depth_clear_value);
+#else
+    glGetFloatv(GL_DEPTH_CLEAR_VALUE,&glm_ctx->state.var.depth_clear_value);
+#endif
     glGetIntegerv(GL_DEPTH_FUNC,&glm_ctx->state.var.depth_func);
     glGetIntegerv(GL_STENCIL_CLEAR_VALUE,&glm_ctx->state.var.stencil_clear_value);
     glGetIntegerv(GL_STENCIL_FUNC,&glm_ctx->state.var.stencil_func);

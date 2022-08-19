@@ -535,6 +535,7 @@ typedef struct {
     TextureUnit texture_units[TEXTURE_UNITS];
     Sampler     *texture_samplers[TEXTURE_UNITS];
     ImageUnit   image_units[TEXTURE_UNITS];
+    int proxy_width, proxy_height, proxy_internalformat;
 
     GLsizei sync_name;
 

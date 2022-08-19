@@ -791,14 +791,42 @@ void mglGetTexParameteriv(GLMContext ctx, GLenum target, GLenum pname, GLint *pa
     }
 }
 
+static int inline nlevel(int size, int level) {
+    if(size) {
+        size>>=level;
+        if(!size) size=1;
+    }
+    return size;
+}
+
 void mglGetTexLevelParameterfv(GLMContext ctx, GLenum target, GLint level, GLenum pname, GLfloat *params)
 {
     // Unimplemented function
-    assert(0);
+    //assert(0);
+    mglGetTexParameterfv(ctx, target, pname, params);
 }
 
 void mglGetTexLevelParameteriv(GLMContext ctx, GLenum target, GLint level, GLenum pname, GLint *params)
 {
     // Unimplemented function
-    assert(0);
+    //assert(0);
+    if (target == GL_PROXY_TEXTURE_1D ||
+        target == GL_PROXY_TEXTURE_2D ||
+        target == GL_PROXY_TEXTURE_3D ||
+        target == GL_PROXY_TEXTURE_RECTANGLE)
+    {
+        switch (pname) {
+            case GL_TEXTURE_WIDTH:
+                (*params) = nlevel(ctx->state.proxy_width,level);
+                break;
+            case GL_TEXTURE_HEIGHT:
+                (*params) = nlevel(ctx->state.proxy_height,level);
+                break;
+            case GL_TEXTURE_INTERNAL_FORMAT:
+                (*params) = ctx->state.proxy_internalformat;
+                break;
+        }
+        return;
+    }
+    mglGetTexParameteriv(ctx, target, pname, params);
 }

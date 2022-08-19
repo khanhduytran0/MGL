@@ -52,7 +52,7 @@ GLuint textureIndexFromTarget(GLMContext ctx, GLenum target)
         case GL_TEXTURE_2D_MULTISAMPLE_ARRAY: return _TEXTURE_2D_MULTISAMPLE_ARRAY;
         case GL_RENDERBUFFER: return _RENDERBUFFER;
 
-        default:
+        default: printf("unknown target 0x%x\n", target);
             assert(0);
     }
 
@@ -205,6 +205,7 @@ bool checkInternalFormatForMetal(GLMContext ctx, GLuint internalformat)
 
     if (mtl_format == MTLPixelFormatInvalid)
     {
+        printf("internalformat %d is invalid\n", internalformat);
         return false;
     }
 
@@ -869,6 +870,14 @@ bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, 
         }
     }
 
+    if (proxy)
+    {
+        tex->width = ((width << level) > ctx->state.var.max_texture_size) ? 0 : width;
+        tex->height = ((height << level) > ctx->state.var.max_texture_size) ? 0 : height;
+        tex->internalformat = internalformat;
+        return true;
+    }
+
     if (level == 0)
     {
         if (internalformat == 0)
@@ -894,12 +903,6 @@ bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, 
             }
         }
 
-        // see if we can actually use this internal format
-        if (checkInternalFormatForMetal(ctx, internalformat) == false)
-        {
-            ERROR_RETURN_VALUE(GL_INVALID_OPERATION, false);
-        }
-
         if (tex->mipmap_levels == 0)
         {
             // uninitialized tex
@@ -912,6 +915,13 @@ bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, 
 
             initBaseTexLevel(ctx, tex, internalformat, width, height, depth);
         }
+
+        // see if we can actually use this internal format
+        if (checkInternalFormatForMetal(ctx, internalformat) == false)
+        {
+            ERROR_RETURN_VALUE(GL_INVALID_OPERATION, false);
+        }
+
     }
     else if (checkTexLevelParams(ctx, tex, level, internalformat, width, height, depth, format, type) == false)
     {
@@ -1188,6 +1198,14 @@ void mglTexImage2D(GLMContext ctx, GLenum target, GLint level, GLint internalfor
     ERROR_CHECK_RETURN(height >= 0, GL_INVALID_VALUE);
 
     ERROR_CHECK_RETURN(border == 0, GL_INVALID_VALUE);
+
+    if (proxy)
+    {
+        ctx->state.proxy_width = width;
+        ctx->state.proxy_height = height;
+        ctx->state.proxy_internalformat = internalformat;
+        return;
+    }
 
     tex = getTex(ctx, 0, target);
 

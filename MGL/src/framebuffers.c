@@ -204,7 +204,14 @@ void mglBindFramebuffer(GLMContext ctx, GLenum target, GLuint framebuffer)
 void mglDeleteFramebuffers(GLMContext ctx, GLsizei n, const GLuint *framebuffers)
 {
     // Unimplemented function
-    assert(0);
+    //assert(0);
+
+    // I know this is wrong, but just make it to work literally
+    for (int i = 0; i < n; i++)
+    {
+        Framebuffer *ptr = getFramebuffer(ctx, framebuffers[i]);
+        free(ptr);
+    }
 }
 
 GLenum  mglCheckFramebufferStatus(GLMContext ctx, GLenum target)

@@ -73,12 +73,12 @@ $(test_objs): CFLAGS += -DTEST_MGL_GLFW $(shell pkg-config --cflags glfw3)
 
 $(test_exe): $(test_objs)
 	@mkdir -p $(dir $@)
-	$(CXX) -o $@ $^ -L$(build_dir) -lmgl $(test_libs) -fsanitize=address
+	$(CXX) -o $@ $^ -L$(build_dir) -lmgl $(test_libs) #-fsanitize=address
 
 CFLAGS += -Wall #-Wunused-parameter #-Wextra
-CFLAGS += -gfull -O0 -fsanitize=address
+CFLAGS += -gfull -O0 #-fsanitize=address
 #CFLAGS += -03
-LIBS += -fsanitize=address
+#LIBS += -fsanitize=address
 #CFLAGS += -arch $(shell uname -m)
 CFLAGS += -arch arm64
 CFLAGS += -miphoneos-version-min=14.0
@@ -105,7 +105,6 @@ LIBS += -L$(spirv_cross_lib_path) -lspirv-cross-core -lspirv-cross-c -lspirv-cro
 #LIBS += -L$(brew_prefix)/opt/glslang/lib
 LIBS += $(addprefix -L,$(glslang_lib_path))
 LIBS += -lglslang -lMachineIndependent -lGenericCodeGen -lOGLCompiler -lOSDependent -lglslang-default-resource-limits -lSPIRV
-LIBS += -Fexternal -framework MetalANGLE
 #LIBS += -framework OpenGL -framework CoreGraphics
 
 # specific rules

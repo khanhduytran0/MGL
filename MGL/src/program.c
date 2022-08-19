@@ -483,8 +483,13 @@ void mglUseProgram(GLMContext ctx, GLuint program)
 
 void mglBindAttribLocation(GLMContext ctx, GLuint program, GLuint index, const GLchar *name)
 {
+    printf("FIXME: %s(program=%d index=%d name=%s)\n", __func__, program, index, name);
     // Unimplemented function
     assert(0);
+
+    //Program *pptr = findProgram(ctx, program);
+    //printf("program = %p\n", pptr->linked_glsl_program);
+    //pptr->bindAttributeLocation(index, name);
 }
 
 void mglGetActiveAttrib(GLMContext ctx, GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name)
