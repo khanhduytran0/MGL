@@ -229,6 +229,22 @@ void addShadersToProgram(GLMContext ctx, Program *pptr, glslang_program_t *glsl_
     }
 }
 
+int localGetAttribLocation(GLMContext ctx, Program *ptr, const GLchar *name)
+{
+    for (int i = 0; i < MAX_ATTRIBS && ptr->attribute_location_list[i]; i++)
+    {
+        if (!strcmp(ptr->attribute_location_list[i], name))
+        {
+            return i;
+        }
+    }
+
+    //assert(0);
+    printf("localGetAttribLocation(program=%p, name=%s) not found, defaulting to 0\n", ptr, name);
+    return 0;
+}
+
+
 char *parseSPIRVShaderToMetal(GLMContext ctx, Program *ptr, int stage)
 {
     const SpvId *spirv;
@@ -336,8 +352,18 @@ char *parseSPIRVShaderToMetal(GLMContext ctx, Program *ptr, int stage)
         ptr->spirv_resources_list[stage][res_type].count = (GLuint)count;
         ptr->spirv_resources_list[stage][res_type].list = (SpirvResource *)malloc(count * sizeof(SpirvResource));
 
+        int inputCount = 0;
         for (i = 0; i < count; i++)
         {
+            if (res_type == SPVC_RESOURCE_TYPE_STAGE_INPUT)
+            {
+                int location = localGetAttribLocation(ctx, ptr, list[i].name);
+                if (location == 0)
+                {
+                    ptr->attribute_location_list[location = inputCount++] = list[i].name;
+                }
+                spvc_compiler_set_decoration(compiler_msl, list[i].id, SpvDecorationLocation, location);
+            }
             printf("res_type: %s ID: %u, BaseTypeID: %u, TypeID: %u, Name: %s ", res_name[res_type], list[i].id, list[i].base_type_id, list[i].type_id,
                    list[i].name);
             printf("Set: %u, Binding: %u Location: %d Index: %d, Uniform: %d\n",
@@ -483,13 +509,18 @@ void mglUseProgram(GLMContext ctx, GLuint program)
 
 void mglBindAttribLocation(GLMContext ctx, GLuint program, GLuint index, const GLchar *name)
 {
-    printf("FIXME: %s(program=%d index=%d name=%s)\n", __func__, program, index, name);
-    // Unimplemented function
-    assert(0);
+    if (isProgram(ctx, program) == GL_FALSE)
+    {
+        ERROR_RETURN(GL_INVALID_OPERATION);
+        return;
+    }
 
-    //Program *pptr = findProgram(ctx, program);
-    //printf("program = %p\n", pptr->linked_glsl_program);
-    //pptr->bindAttributeLocation(index, name);
+    Program *ptr;
+
+    ptr = getProgram(ctx, program);
+    assert(program);
+
+    ptr->attribute_location_list[index] = strdup(name);
 }
 
 void mglGetActiveAttrib(GLMContext ctx, GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name)
@@ -557,8 +588,22 @@ GLint  mglGetAttribLocation(GLMContext ctx, GLuint program, const GLchar *name)
 
 void mglGetProgramiv(GLMContext ctx, GLuint program, GLenum pname, GLint *params)
 {
-    // Unimplemented function
-    assert(0);
+    if (isProgram(ctx, program) == GL_FALSE)
+    {
+        ERROR_RETURN(GL_INVALID_OPERATION); // also may be GL_INVALID_VALUE ????
+
+        return;
+    }
+
+    Program *ptr;
+
+    ptr = getProgram(ctx, program);
+    assert(program);
+
+    switch (pname)
+    {
+        case GL_LINK_STATUS: *params = ptr->linked_glsl_program != NULL;
+    }
 }
 
 void mglGetProgramInfoLog(GLMContext ctx, GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog)

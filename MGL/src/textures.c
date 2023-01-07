@@ -880,7 +880,8 @@ bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, 
 
     if (level == 0)
     {
-        if (internalformat == 0)
+        // check if the internal format is unspecified or base
+        if (internalformat == 0 || internalformat == format)
         {
             internalformat = internalFormatForGLFormatType(format, type);
 

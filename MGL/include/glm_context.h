@@ -398,6 +398,7 @@ typedef struct Program_t {
     glslang_program_t *linked_glsl_program;
     Spirv spirv[_MAX_SHADER_TYPES];
     SpirvResourceList spirv_resources_list[_MAX_SHADER_TYPES][_MAX_SPIRV_RES];
+    const char *attribute_location_list[MAX_ATTRIBS];
     struct {
         unsigned x, y, z;
     } local_workgroup_size;

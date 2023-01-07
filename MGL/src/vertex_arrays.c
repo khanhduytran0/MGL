@@ -350,9 +350,14 @@ void mglVertexAttribPointer(GLMContext ctx, GLuint index, GLint size, GLenum typ
     {
         Buffer *ptr;
 
-        ptr = ctx->state.vao->buffer_bindings[index].buffer;
+        //ptr = ctx->state.vao->buffer_bindings[index].buffer;
+        ptr = ctx->state.vao->attrib[index].buffer;
 
-        ERROR_CHECK_RETURN(ptr, GL_INVALID_OPERATION);
+        //ERROR_CHECK_RETURN(ptr, GL_INVALID_OPERATION);
+        if (ptr == NULL)
+        {
+            printf("%s warning: attrib_buffer is NULL\n", __func__);
+        }
     }
 
     switch(type)

@@ -9,6 +9,9 @@
 #include <assert.h>
 
 #include "mgl.h"
+
+#define assert(i) printf("Unimplemented function %s\n", __func__)
+
 void mglActiveShaderProgram(GLMContext ctx, GLuint pipeline, GLuint program)
 {
         assert(0);
