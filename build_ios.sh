@@ -1,3 +1,5 @@
+set -e
+
 make -j4 \
   glslang_path=external/glslang \
   spirv_cross_1_2_include_path=external/SPIRV-Headers/include/spirv/1.2 \

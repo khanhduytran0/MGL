@@ -352,15 +352,19 @@ char *parseSPIRVShaderToMetal(GLMContext ctx, Program *ptr, int stage)
         ptr->spirv_resources_list[stage][res_type].count = (GLuint)count;
         ptr->spirv_resources_list[stage][res_type].list = (SpirvResource *)malloc(count * sizeof(SpirvResource));
 
-        int inputCount = 0;
+        int attribCount = 0;
         for (i = 0; i < count; i++)
         {
-            if (res_type == SPVC_RESOURCE_TYPE_STAGE_INPUT)
+            if (res_type == SPVC_RESOURCE_TYPE_STAGE_INPUT || res_type == SPVC_RESOURCE_TYPE_STAGE_OUTPUT)
             {
                 int location = localGetAttribLocation(ctx, ptr, list[i].name);
                 if (location == 0)
                 {
-                    ptr->attribute_location_list[location = inputCount++] = list[i].name;
+                    ptr->attribute_location_list[location = attribCount++] = list[i].name;
+                }
+                else
+                {
+                    attribCount = location+1;
                 }
                 spvc_compiler_set_decoration(compiler_msl, list[i].id, SpvDecorationLocation, location);
             }
@@ -389,7 +393,7 @@ char *parseSPIRVShaderToMetal(GLMContext ctx, Program *ptr, int stage)
     spvc_compiler_install_compiler_options(compiler_msl, options);
 
     spvc_compiler_compile(compiler_msl, &result);
-    printf("\n%s\n", result);
+    //printf("\n%s\n", result);
 
     str_ret = strdup(result);
 
@@ -608,8 +612,8 @@ void mglGetProgramiv(GLMContext ctx, GLuint program, GLenum pname, GLint *params
 
 void mglGetProgramInfoLog(GLMContext ctx, GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog)
 {
-    // Unimplemented function
-    assert(0);
+    *length = 0;
+    printf("Unimplemented function %s\n", __func__);
 }
 
 #pragma mark uniforms

@@ -82,5 +82,5 @@ void deleteHashElement(HashTable *table, GLuint name)
     table->keys[name].data = NULL;
 
     // need to have metal delete object
-    assert(0);
+    //assert(0);
 }

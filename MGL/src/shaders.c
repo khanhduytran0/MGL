@@ -411,7 +411,7 @@ void mglGetShaderiv(GLMContext ctx, GLuint shader, GLenum pname, GLint *params)
             break;
 
         case GL_INFO_LOG_LENGTH:
-            *params = (GLint)strlen(ptr->log);
+            *params = ptr->log?(GLint)strlen(ptr->log):0;
             break;
 
         case GL_SHADER_SOURCE_LENGTH:

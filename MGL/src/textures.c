@@ -638,7 +638,7 @@ bool checkTexLevelParams(GLMContext ctx, Texture *tex, GLint level, GLuint inter
         }
     }
 
-    if (checkInternalFormatForMetal(ctx, internalformat))
+    if (!checkInternalFormatForMetal(ctx, internalformat))
     {
         return false;
     }
@@ -861,6 +861,11 @@ void unpackTexture(GLMContext ctx, Texture *tex, GLuint face, GLuint level, void
 #pragma mark texImage 1D/2D/3D
 bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, GLboolean is_array, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, void *pixels, GLboolean proxy)
 {
+    if (internalformat == format)
+    {
+        internalformat = internalFormatForGLFormatType(format, type);
+    }
+
     // all the levels are created on a tex storage call.. if we get here we should just assert
     if (tex->immutable_storage)
     {
@@ -881,7 +886,7 @@ bool createTextureLevel(GLMContext ctx, Texture *tex, GLuint face, GLint level, 
     if (level == 0)
     {
         // check if the internal format is unspecified or base
-        if (internalformat == 0 || internalformat == format)
+        if (internalformat == 0)
         {
             internalformat = internalFormatForGLFormatType(format, type);
 
@@ -1899,7 +1904,33 @@ void mglCopyTextureSubImage3D(GLMContext ctx, GLuint texture, GLint level, GLint
 
 void mglGetTexImage(GLMContext ctx, GLenum target, GLint level, GLenum format, GLenum type, void *pixels)
 {
-        assert(0);
+    Texture *tex;
+    tex = getTex(ctx, 0, target);
+    ERROR_CHECK_RETURN(tex, GL_INVALID_OPERATION);
+
+    GLuint pixel_size;
+    pixel_size = sizeForFormatType(format, type);
+
+    ERROR_CHECK_RETURN(pixel_size != 0, GL_INVALID_ENUM);
+
+    int width = tex->width;
+    int height = tex->height;
+    ERROR_CHECK_RETURN(width > 0, GL_INVALID_ENUM);
+    ERROR_CHECK_RETURN(height > 0, GL_INVALID_ENUM);
+
+    GLuint pitch;
+    if (ctx->state.pack.row_length)
+    {
+        pitch = ctx->state.pack.row_length * pixel_size;
+    }
+    else
+    {
+        pitch = width * pixel_size;
+    }
+
+    int bufSize = pitch * height;
+
+    ctx->mtl_funcs.mtlGetTexImage(ctx, tex, (void *)pixels, pitch, (GLuint)bufSize, 0, 0, width, height, 0, 0);
 }
 
 void mglGetTextureImage(GLMContext ctx, GLuint texture, GLint level, GLenum format, GLenum type, GLsizei bufSize, void *pixels)
